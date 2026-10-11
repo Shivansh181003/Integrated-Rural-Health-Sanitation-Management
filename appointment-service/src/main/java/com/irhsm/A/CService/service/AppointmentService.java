@@ -1,13 +1,17 @@
 package com.irhsm.A.CService.service;
 
 import com.irhsm.A.CService.client.CentreClient;
+import com.irhsm.A.CService.client.ResidentClient;
 import com.irhsm.A.CService.dto.CentreDto;
+import com.irhsm.A.CService.dto.ResidentDto;
 import com.irhsm.A.CService.dto.WorkerDto;
 import com.irhsm.A.CService.entity.Appointment;
 import com.irhsm.A.CService.entity.AppointmentStatus;
 import com.irhsm.A.CService.repository.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -17,6 +21,7 @@ public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final CentreClient centreClient;
+    private final ResidentClient residentClient;
 
     public List<Appointment> getAll() {
         return appointmentRepository.findAllByOrderByAppointmentDateDescTokenNoAsc();
@@ -28,6 +33,14 @@ public class AppointmentService {
     }
 
     public Appointment book(Appointment appointment) {
+        // Check the resident exists in the Resident service and use the registered name
+        ResidentDto resident = residentClient.getResident(appointment.getResidentId());
+        if (resident != null && resident.getFullName() != null) {
+            appointment.setResidentName(resident.getFullName());
+        } else if (appointment.getResidentName() == null || appointment.getResidentName().isBlank()) {
+            throw new IllegalStateException("Resident service is not reachable - please type the resident's name");
+        }
+
         CentreDto centre = centreClient.getCentre(appointment.getCentreId());
 
         WorkerDto worker = centreClient.getWorkers(appointment.getCentreId()).stream()
@@ -47,7 +60,13 @@ public class AppointmentService {
     }
 
     public Appointment updateStatus(Long id, AppointmentStatus status) {
-        Appointment appointment = getById(id);
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Appointment " + id + " not found"));
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED
+                || appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Appointment " + id + " is already " + appointment.getStatus());
+        }
         appointment.setStatus(status);
         return appointmentRepository.save(appointment);
     }
@@ -55,6 +74,8 @@ public class AppointmentService {
     public Map<String, Long> getSummary() {
         Map<String, Long> summary = new HashMap<>();
         summary.put("total", appointmentRepository.count());
+        summary.put("pending", appointmentRepository.countByStatus(AppointmentStatus.BOOKED)
+                + appointmentRepository.countByStatus(AppointmentStatus.CHECKED_IN));
         summary.put("booked", appointmentRepository.countByStatus(AppointmentStatus.BOOKED));
         summary.put("completed", appointmentRepository.countByStatus(AppointmentStatus.COMPLETED));
         summary.put("cancelled", appointmentRepository.countByStatus(AppointmentStatus.CANCELLED));
@@ -77,4 +98,4 @@ public class AppointmentService {
         }
         return pending;
     }
-}
+}

@@ -10,10 +10,22 @@
         th { background: #f0f0f0; }
         .btn { padding: 6px 12px; background: #2b6cb0; color: white; text-decoration: none; border: none; border-radius: 4px; cursor: pointer; }
         form.inline { display: inline; }
+        .navbar { background: #2f6f8f; padding: 10px 20px; margin: -24px -24px 20px; }
+        .navbar a { color: #fff; margin-right: 16px; text-decoration: none; font-size: 14px; }
+        .navbar a.active { font-weight: bold; text-decoration: underline; }
     </style>
 </head>
 <body>
-<nav><a href="/appointments">Appointments</a></nav>
+<nav class="navbar">
+    <a href="http://localhost:8080/dashboard">Dashboard</a>
+    <a href="http://localhost:8080/residents">Residents</a>
+    <a href="http://localhost:8080/centres">Health Centres</a>
+    <a href="http://localhost:8080/appointments" class="active">Appointments</a>
+    <a href="http://localhost:8080/medicines">Medicines</a>
+    <a href="http://localhost:8080/camps">Health Camps</a>
+    <a href="http://localhost:8080/sanitation">Sanitation</a>
+    <a href="http://localhost:8080/water">Water</a>
+</nav>
 <h1>Appointments</h1>
 <p><a class="btn" href="/appointments/new">+ Book appointment</a></p>
 
@@ -43,4 +55,4 @@
     <tr th:if="${#lists.isEmpty(appointments)}"><td colspan="9">No appointments yet.</td></tr>
 </table>
 </body>
-</html>
+</html>

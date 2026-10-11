@@ -23,7 +23,7 @@ public class Appointment {
     @NotNull(message = "Resident ID is required")
     private Long residentId;
 
-    @NotBlank(message = "Resident name is required")
+    // Filled from the Resident service when booking (typed name is only a fallback)
     private String residentName;
 
     @NotNull(message = "Choose a centre")
@@ -51,4 +51,4 @@ public class Appointment {
 
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
-}
+}
