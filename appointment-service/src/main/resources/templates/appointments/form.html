@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Appointment</title>
+    <style>
+        body { font-family: sans-serif; margin: 24px; max-width: 520px; }
+        label { display: block; margin-top: 12px; font-weight: bold; }
+        input, select { width: 100%; padding: 6px; }
+        .error { color: #c53030; font-size: 0.9em; }
+        .alert { background: #fed7d7; color: #742a2a; padding: 10px; border-radius: 4px; }
+        .btn { margin-top: 16px; padding: 8px 16px; background: #2b6cb0; color: white; border: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<nav><a href="/appointments">Appointments</a></nav>
+<h1>Book appointment</h1>
+
+<div class="alert" th:if="${error}" th:text="${error}"></div>
+
+<form th:action="@{/appointments/book}" th:object="${appointment}" method="post">
+
+    <label>Health centre (loaded from Centre service)</label>
+    <select th:field="*{centreId}" onchange="window.location='/appointments/new?centreId=' + this.value">
+        <option value="">-- choose a centre first --</option>
+        <option th:each="c : ${centres}" th:value="${c.id}" th:text="${c.name} + ' (' + ${c.village} + ')'"></option>
+    </select>
+    <div class="error" th:if="${#fields.hasErrors('centreId')}" th:errors="*{centreId}"></div>
+
+    <label>Health worker (active workers at this centre)</label>
+    <select th:field="*{workerId}">
+        <option value="">-- choose a worker --</option>
+        <option th:each="w : ${workers}" th:value="${w.id}" th:text="${w.name} + ' - ' + ${w.role}"></option>
+    </select>
+    <div class="error" th:if="${#fields.hasErrors('workerId')}" th:errors="*{workerId}"></div>
+
+    <label>Resident ID</label>
+    <input type="number" th:field="*{residentId}">
+    <div class="error" th:if="${#fields.hasErrors('residentId')}" th:errors="*{residentId}"></div>
+
+    <label>Resident name</label>
+    <input type="text" th:field="*{residentName}">
+    <div class="error" th:if="${#fields.hasErrors('residentName')}" th:errors="*{residentName}"></div>
+
+    <label>Date</label>
+    <input type="date" th:field="*{appointmentDate}">
+    <div class="error" th:if="${#fields.hasErrors('appointmentDate')}" th:errors="*{appointmentDate}"></div>
+
+    <label>Time</label>
+    <input type="time" th:field="*{timeSlot}">
+    <div class="error" th:if="${#fields.hasErrors('timeSlot')}" th:errors="*{timeSlot}"></div>
+
+    <label>Reason</label>
+    <input type="text" th:field="*{reason}" placeholder="e.g. fever for 3 days">
+    <div class="error" th:if="${#fields.hasErrors('reason')}" th:errors="*{reason}"></div>
+
+    <button class="btn" type="submit">Book</button>
+    <a href="/appointments">Cancel</a>
+</form>
+</body>
+</html>

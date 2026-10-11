@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointments</title>
+    <style>
+        body { font-family: sans-serif; margin: 24px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f0f0f0; }
+        .btn { padding: 6px 12px; background: #2b6cb0; color: white; text-decoration: none; border: none; border-radius: 4px; cursor: pointer; }
+        form.inline { display: inline; }
+    </style>
+</head>
+<body>
+<nav><a href="/appointments">Appointments</a></nav>
+<h1>Appointments</h1>
+<p><a class="btn" href="/appointments/new">+ Book appointment</a></p>
+
+<table>
+    <tr><th>Token</th><th>Date</th><th>Time</th><th>Resident</th><th>Centre</th><th>Worker</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+    <tr th:each="a : ${appointments}">
+        <td th:text="${a.tokenNo}"></td>
+        <td th:text="${a.appointmentDate}"></td>
+        <td th:text="${a.timeSlot}"></td>
+        <td th:text="${a.residentName} + ' (#' + ${a.residentId} + ')'"></td>
+        <td th:text="${a.centreName}"></td>
+        <td th:text="${a.workerName}"></td>
+        <td th:text="${a.reason}"></td>
+        <td th:text="${a.status}"></td>
+        <td>
+            <form class="inline" th:if="${a.status.name() == 'BOOKED'}" th:action="@{/appointments/{id}/status(id=${a.id})}" method="post">
+                <input type="hidden" name="status" value="CHECKED_IN"><button type="submit">Check in</button>
+            </form>
+            <form class="inline" th:if="${a.status.name() == 'CHECKED_IN'}" th:action="@{/appointments/{id}/status(id=${a.id})}" method="post">
+                <input type="hidden" name="status" value="COMPLETED"><button type="submit">Complete</button>
+            </form>
+            <form class="inline" th:if="${a.status.name() == 'BOOKED'}" th:action="@{/appointments/{id}/status(id=${a.id})}" method="post">
+                <input type="hidden" name="status" value="CANCELLED"><button type="submit">Cancel</button>
+            </form>
+        </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(appointments)}"><td colspan="9">No appointments yet.</td></tr>
+</table>
+</body>
+</html>
