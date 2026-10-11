@@ -10,10 +10,22 @@
         .error { color: #c53030; font-size: 0.9em; }
         .alert { background: #fed7d7; color: #742a2a; padding: 10px; border-radius: 4px; }
         .btn { margin-top: 16px; padding: 8px 16px; background: #2b6cb0; color: white; border: none; border-radius: 4px; }
+        .navbar { background: #2f6f8f; padding: 10px 20px; margin: -24px -24px 20px; }
+        .navbar a { color: #fff; margin-right: 16px; text-decoration: none; font-size: 14px; }
+        .navbar a.active { font-weight: bold; text-decoration: underline; }
     </style>
 </head>
 <body>
-<nav><a href="/appointments">Appointments</a></nav>
+<nav class="navbar">
+    <a href="http://localhost:8080/dashboard">Dashboard</a>
+    <a href="http://localhost:8080/residents">Residents</a>
+    <a href="http://localhost:8080/centres">Health Centres</a>
+    <a href="http://localhost:8080/appointments" class="active">Appointments</a>
+    <a href="http://localhost:8080/medicines">Medicines</a>
+    <a href="http://localhost:8080/camps">Health Camps</a>
+    <a href="http://localhost:8080/sanitation">Sanitation</a>
+    <a href="http://localhost:8080/water">Water</a>
+</nav>
 <h1>Book appointment</h1>
 
 <div class="alert" th:if="${error}" th:text="${error}"></div>
@@ -38,7 +50,7 @@
     <input type="number" th:field="*{residentId}">
     <div class="error" th:if="${#fields.hasErrors('residentId')}" th:errors="*{residentId}"></div>
 
-    <label>Resident name</label>
+    <label>Resident name (filled in from the Resident service; type it only if that service is down)</label>
     <input type="text" th:field="*{residentName}">
     <div class="error" th:if="${#fields.hasErrors('residentName')}" th:errors="*{residentName}"></div>
 
@@ -58,4 +70,4 @@
     <a href="/appointments">Cancel</a>
 </form>
 </body>
-</html>
+</html>

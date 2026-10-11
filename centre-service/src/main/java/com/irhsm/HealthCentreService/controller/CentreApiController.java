@@ -1,5 +1,7 @@
 package com.irhsm.HealthCentreService.controller;
 
+import com.irhsm.HealthCentreService.dto.PendingItemDto;
+import com.irhsm.HealthCentreService.dto.StatusUpdateDto;
 import com.irhsm.HealthCentreService.entity.Facility;
 import com.irhsm.HealthCentreService.entity.FacilityStatus;
 import com.irhsm.HealthCentreService.entity.HealthCentre;
@@ -28,9 +30,17 @@ public class CentreApiController {
         return centreService.getSummary();
     }
 
+    // Team contract: facilities that are not AVAILABLE, in the shared 7-field format
     @GetMapping("/pending")
-    public List<Facility> pending() {
-        return centreService.getPendingFacilities();
+    public List<PendingItemDto> pending() {
+        return centreService.getPendingFacilities().stream().map(PendingItemDto::from).toList();
+    }
+
+    // Team contract: PUT /api/centres/{id}/status  body {"status":"UNDER_REPAIR","remarks":"..."}
+    // {id} = FACILITY id (the same id /pending gave out)
+    @PutMapping("/{id}/status")
+    public PendingItemDto updatePendingStatus(@PathVariable Long id, @RequestBody StatusUpdateDto body) {
+        return PendingItemDto.from(centreService.updateFacilityStatus(id, body.status(), body.remarks()));
     }
 
     @GetMapping("/{id}")
@@ -63,4 +73,4 @@ public class CentreApiController {
     public Facility updateStatus(@PathVariable Long id, @RequestParam FacilityStatus status) {
         return centreService.updateFacilityStatus(id, status);
     }
-}
+}
